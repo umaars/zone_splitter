@@ -5,8 +5,7 @@ import requests_cache
 #use requests_cache for testing
 #requests_cache.install_cache(expire_after=600)
 
-site = 'http://onapp62.seven.lab'
-#site = 'http://demo.onapp.com'
+site = 'http://my.onapp.server'
 
 r = requests.Session()
 
@@ -15,21 +14,13 @@ r.headers = {
     'Content-type': 'application/json'
 }
 
-r.auth = 'onapp_api','Qwertyqwerty1!'
+#Api credentials
+r.auth = 'onapp_api','my_api_pass'
 
 def get_stuff(url):
     s = r.get(url)
     data = s.json()
     return data
-
-# s = r.get(f"{site}/version.json")
-# print(s.json())
-
-# n = r.get("http://onapp62.seven.lab/settings/networks.json")
-# nets = n.json()
-
-# print(nets)
-
 
 class Networks:
 
@@ -67,11 +58,6 @@ class Networks:
                 if self.id == each['network_join']['network_id']:
                     return each['network_join']['id']
 
-# select_hv = get_stuff(f'{site}/settings/hypervisors.json')
-# for each in select_hv:
-#     if each['hypervisor']['hypervisor_type'] == 'vcenter':
-#         print(f"Compute Resource : {each['hypervisor']['label']} -- ID : {each['hypervisor']['id']}")
-
 
 #Select the Network Zone that we want to split so we only get that network zone data
 select_network_zone = get_stuff(f'{site}/settings/network_zones.json')
@@ -95,35 +81,6 @@ for each in my_stuff:
         working_dicts.append({'label' : data.label, 'network_id' : data.id, 'join_id' : data.get_join_id(), 'network_zone_id' : data.network_group_id, 'hv_id' : data.get_hv_id()})
 
 
-print(working_dicts)
-
-
-#First Sanity check to ensure that we do not create zones that already exist so we get current network zone list labels and ensure we do not create them
-
-# existing_nz = []
-
-# existing = get_stuff(f'{site}/settings/network_zones.json')
-# for each in existing:
-#     if each['network_group']['server_type'] == 'virtual':
-#         existing_nz.append(each['network_group']['label'])
-
-# print(existing_nz)
-
-# unique = [item['label'] for item in working_dicts if item not in existing_nz]
-# print(f'Unique = {unique}')
-
-#remove network join from HV
-# delete_network_join = r.delete(f'{site}/settings/hypervisors/{hv_id}/network_joins/{network_join_id}.json')
-#Remove network from existing zone
-#remove_from_zone = r.post(f'{site}/settings/network_zones/{network_zone_id}/networks/{network_id}/detach.json)
-#Create new network zone using the label
-# create_network_zone = r.post(f'{site}/settings/network_zones.json',json={"network_group" :{"label":"testing"}})
-#Get and store the ID for newly created zone from create_network_zone request response in form of create_network_zone.json()['network_group']['id']
-#
-#Add network to Zone using stored zone ID
-#create_network_zone = r.post(f'{site}/settings/network_zones/{new_network_zone_id}/networks/{network_id}/attach.json')
-#Reattach join to HV
-# attach_network_joing = r.post(f'{site}/settings/hypervisors/{hv_id}/network_joins.json', json={"network_join":{"network_id": 4, "interface":"vlan"}}'')
 print(working_dicts)
 
 for each in working_dicts:
@@ -150,8 +107,4 @@ for each in working_dicts:
 
     else:
         print(f"unable to remove Network join {each['join_id']}from HV {each['hv_id']} ")
-    # create_network_zone = r.post(f'{site}/settings/network_zones.json',json={"network_group" :{"label": each['label']}})
-    # new_network_zone_id = create_network_zone.json()['network_group']['id']
-    # attach_to_new_zone = r.post(f"{site}/settings/network_zones/{new_network_zone_id}/networks/{each['network_id']}/attach.json")
-    # attach_to_hv = r.post(f"{site}/settings/hypervisors/{each['hv_id']}/network_joins.json", json={"network_join":{"network_id": each['network_id'], "interface":"vlan"}})
-# id = [y['network_group']['label'] for y in get_network_zone if y['network_group']['id'] == x['label']]
+
