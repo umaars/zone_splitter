@@ -1,4 +1,7 @@
 # zone_splitter
+
+Make sure to take a snapshot of the OnApp VM before you proceed to protect against any mistakes.
+
 Use MiniConda and create an environment with python3, centos 7 does not support python3 natively.
 https://docs.conda.io/en/latest/miniconda.html
 
